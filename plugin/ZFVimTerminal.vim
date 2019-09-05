@@ -121,6 +121,10 @@ let s:state = {
             \   'cmdLast' : '',
             \ }
 
+function! s:compatibleMode()
+    return g:ZFVimTerminalCompatibleMode || !ZFJobAvailable()
+endfunction
+
 function! s:zfterminal(...)
     let cmd = get(a:, 1, '')
 
@@ -142,7 +146,7 @@ function! s:zfterminal(...)
                 \   'onOutput' : ZFJobFunc(function('s:onOutput')),
                 \   'onExit' : ZFJobFunc(function('s:onExit')),
                 \ }
-    if s:state['jobId'] == 0 || g:ZFVimTerminalCompatibleMode || !ZFJobAvailable()
+    if s:compatibleMode()
         let s:state['jobId'] = 0
         if empty(cmd)
             call s:outputCmd('')
@@ -210,7 +214,7 @@ function! s:output(line)
 endfunction
 
 function! s:outputShellPrefix()
-    if s:state['jobId'] == 0
+    if s:compatibleMode()
         let output = s:getOption(g:ZFVimTerminal_shellPrefixCompatible)
     else
         let output = s:getOption(g:ZFVimTerminal_shellPrefix)
