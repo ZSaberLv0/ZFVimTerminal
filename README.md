@@ -31,7 +31,10 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     nnoremap <leader>zs :ZFTerminal<space>
     ```
 
-1. use `:ZFTerminal` to open terminal, use `<tab>` to complete file names
+1. use `:ZFTerminal [your_cmd]` to run terminal, use `<tab>` to complete file names
+
+    * take care of special chars of vim cmdline, `:h cmdline-special`
+
 1. `<esc>` to quit input, you may visual select and copy the text inside the terminal window
 1. use `i/I/a/A/o/O` to start input again
 1. use `q` to kill and close terminal,
