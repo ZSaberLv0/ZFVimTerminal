@@ -250,11 +250,7 @@ function! s:onOutput(jobStatus, text, type)
         redraw
         return
     endif
-    if match(a:text, s:autoDetectShellEndFlag) >= 0
-        let text = substitute(a:text, s:autoDetectShellEndFlag, '', 'g')
-    else
-        let text = a:text
-    endif
+    let text = substitute(a:text, s:autoDetectShellEndFlag, '', 'g')
     if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
         call s:output(text)
     endif
