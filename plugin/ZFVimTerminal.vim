@@ -250,10 +250,17 @@ function! s:onOutput(jobStatus, text, type)
         redraw
         return
     endif
-    if match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(a:text)
-        return
+    if match(a:text, s:autoDetectShellEndFlag) >= 0
+        let text = substitute(a:text, s:autoDetectShellEndFlag, '', 'g')
+    else
+        let text = a:text
     endif
-    call s:output(a:text)
+    if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
+        call s:output(text)
+    endif
+    if text != a:text
+        call ZFJobSend(s:state['jobId'], 'echo ' . s:autoDetectShellEndFlag . "\n")
+    endif
 endfunction
 
 " tricks to solve cmd.exe's extra output
