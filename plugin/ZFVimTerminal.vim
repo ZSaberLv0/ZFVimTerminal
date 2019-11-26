@@ -58,6 +58,7 @@ command! -nargs=0 ZFTerminalHide :call s:zfterminalHide()
 let s:shell = ''
 let s:autoDetectShellEnd = g:ZFVimTerminal_autoDetectShellEnd
 let s:autoDetectShellEndFlag = 's:autoDetectShellEnd_FLAG'
+let s:autoDetectShellEndCmd = 'echo ' . s:autoDetectShellEndFlag
 let s:termEncoding = ''
 let s:termEncodingCompatible = ''
 
@@ -255,20 +256,19 @@ function! s:onOutput(jobStatus, text, type)
         call s:output(text)
     endif
     if text != a:text
-        call ZFJobSend(s:state['jobId'], 'echo ' . s:autoDetectShellEndFlag . "\n")
+        call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
     endif
 endfunction
 
 " tricks to solve cmd.exe's extra output
 " `@echo off` still has some annoying output
 let s:onOutput_cmdIgnoreFlag = 0
-let s:onOutput_cmdIgnore_fixCmd = 'echo ' . s:autoDetectShellEndFlag
 function! s:onOutput_cmdIgnore(text)
     if s:onOutput_cmdIgnoreFlag > 0
         let s:onOutput_cmdIgnoreFlag -= 1
         return 1
     endif
-    if stridx(a:text, s:onOutput_cmdIgnore_fixCmd) >= 0
+    if stridx(a:text, s:autoDetectShellEndCmd) >= 0
         let content = ZFLogWinContent(s:logId)
         if !empty(content)
             call remove(content, -1)
@@ -309,7 +309,7 @@ function! s:runNextCmd()
 
     call ZFJobSend(s:state['jobId'], cmd . "\n")
     if s:autoDetectShellEnd
-        call ZFJobSend(s:state['jobId'], 'echo ' . s:autoDetectShellEndFlag . "\n")
+        call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
     endif
 endfunction
 
