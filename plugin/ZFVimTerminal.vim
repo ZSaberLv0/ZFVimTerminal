@@ -8,6 +8,7 @@ if !exists('g:ZFVimTerminal_windowConfig')
                 \   'newWinCmd' : 'rightbelow new',
                 \   'filetype' : 'ZFTerminal',
                 \   'makeDefaultKeymap' : 1,
+                \   'maxLine' : '60000',
                 \   'autoShow' : 1,
                 \ }
 endif
