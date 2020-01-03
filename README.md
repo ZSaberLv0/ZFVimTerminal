@@ -134,3 +134,11 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
 
     shell prefix, can be string or `function()`
 
+* `g:ZFVimTerminal_CRFix`
+
+    how to resolve `\r`, default is `clearLine`, posible values:
+
+    * `clearLine` : same as default shell, clear current line
+    * `newLine` : treat `\r` as `\n`
+    * `keep` : do not modify, keep original
+

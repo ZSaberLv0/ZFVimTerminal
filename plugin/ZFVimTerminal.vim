@@ -46,6 +46,11 @@ if !exists('g:ZFVimTerminal_shellPrefixCompatible')
     let g:ZFVimTerminal_shellPrefixCompatible = function('ZFVimTerminalShellPrefixCompatible')
 endif
 
+" clearLine/newLine/keep
+if !exists('g:ZFVimTerminal_CRFix')
+    let g:ZFVimTerminal_CRFix = 'clearLine'
+endif
+
 
 " ============================================================
 command! -nargs=* -complete=file ZFTerminal :call s:zfterminal(<q-args>)
@@ -254,7 +259,26 @@ function! s:onOutput(jobStatus, text, type)
     endif
     let text = substitute(a:text, s:autoDetectShellEndFlag, '', 'g')
     if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
-        call s:output(text)
+        if g:ZFVimTerminal_CRFix == 'newLine'
+            let text = substitute(text, '\r\n', '\n', 'g')
+            if match(text, '\r') >= 0
+                for t in split(text, '\r')
+                    call s:output(t)
+                endfor
+            else
+                call s:output(text)
+            endif
+        elseif g:ZFVimTerminal_CRFix == 'clearLine'
+            let text = substitute(text, '\r\n', '\n', 'g')
+            if match(text, '\r') >= 0
+                let textLines = split(text, '\r')
+                call s:output(textLines[len(textLines) - 1])
+            else
+                call s:output(text)
+            endif
+        else
+            call s:output(text)
+        endif
     endif
     if text != a:text
         call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
