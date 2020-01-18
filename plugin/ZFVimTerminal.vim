@@ -53,7 +53,7 @@ endif
 
 
 " ============================================================
-command! -nargs=* -complete=file ZFTerminal :call s:zfterminal(<q-args>)
+command! -nargs=* -complete=customlist,ZFVimTerminal_cmdComplete ZFTerminal :call s:zfterminal(<q-args>)
 command! -nargs=0 ZFTerminalCtrlC :call s:zfterminalCtrlC()
 command! -nargs=0 ZFTerminalClose :call s:zfterminalClose()
 command! -nargs=0 ZFTerminalHide :call s:zfterminalHide()

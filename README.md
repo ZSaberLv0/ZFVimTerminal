@@ -31,7 +31,7 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     nnoremap <leader>zs :ZFTerminal<space>
     ```
 
-1. use `:ZFTerminal [your_cmd]` to run terminal, use `<tab>` to complete file names
+1. use `:ZFTerminal [your_cmd]` to run terminal, use `<tab>` to complete command or file names
 
     * take care of special chars of vim cmdline, `:h cmdline-special`
 

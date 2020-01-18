@@ -33,7 +33,7 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     nnoremap <leader>zs :ZFTerminal<space>
     ```
 
-1. use `:ZFTerminal [your_cmd]` to run terminal, use `<tab>` to complete file names
+1. use `:ZFTerminal [your_cmd]` to run terminal, use `<tab>` to complete command or file names
 
     * take care of special chars of vim cmdline, `:h cmdline-special`
 
@@ -49,12 +49,6 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
 
 # Configs
 
-* `g:ZFVimTerminalCompatibleMode`
-
-    whether run in compatible mode, default: auto check
-
-    when run in compatible, we use `system()` instead of `job` to run shell
-
 * `g:ZFVimTerminal_shell`
 
     which shell to use, default:
@@ -69,28 +63,11 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     * `sh` : for Windows Cygwin
     * `sh --login` : for others
 
-* `g:ZFVimTerminal_autoDetectShellEnd`
+* `g:ZFVimTerminal_windowConfig`
 
-    whether use special tricks to detect shell command end, default:
+    terminal window's config, see [Log window](https://github.com/ZSaberLv0/ZFVimJob#log-window) for more info
 
-    ```
-    let g:ZFVimTerminal_autoDetectShellEnd = 1
-    ```
-
-    when on, we use `echo` to output special string to detect whether user input command has end,
-    if any strange things occurred,
-    you may disable this feature
-
-* `g:ZFVimTerminal_keymap`
-
-
-    whether to make default keymap, default:
-
-    ```
-    let g:ZFVimTerminal_keymap = 1
-    ```
-
-    those keymaps would be made
+    those keymaps would be made by default
 
     ```
     nnoremap <buffer> i :<c-u>ZFTerminal<space>
@@ -110,16 +87,26 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     you may add your own keymaps by:
 
     ```
-    autocmd FileType __ZFTERMINAL__ nnoremap <buffer> q :ZFTerminalClose<cr>
+    autocmd FileType ZFTerminal nnoremap <buffer> q :ZFTerminalClose<cr>
     ```
 
-* `g:ZFVimTerminal_windowName`
+* `g:ZFVimTerminalCompatibleMode`
 
-    window name and `filetype` of the terminal window, default:
+    whether run in compatible mode, default: 0
+
+    when run in compatible, we use `system()` instead of `job` to run shell
+
+* `g:ZFVimTerminal_autoDetectShellEnd`
+
+    whether use special tricks to detect shell command end, default:
 
     ```
-    let g:ZFVimTerminal_windowName = '__ZFTERMINAL__'
+    let g:ZFVimTerminal_autoDetectShellEnd = 1
     ```
+
+    when on, we use `echo` to output special string to detect whether user input command has end,
+    if any strange things occurred,
+    you may disable this feature
 
 * `g:ZFVimTerminal_autoEnterInsert`
 
@@ -144,4 +131,16 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
 
     * for Windows without `sh` executable, try to detect by `chcp`
     * otherwise, `utf-8` would be used
+
+* `g:ZFVimTerminal_shellPrefix` / `g:ZFVimTerminal_shellPrefixCompatible`
+
+    shell prefix, can be string or `function()`
+
+* `g:ZFVimTerminal_CRFix`
+
+    how to resolve `\r`, default is `clearLine`, posible values:
+
+    * `clearLine` : same as default shell, clear current line
+    * `newLine` : treat `\r` as `\n`
+    * `keep` : do not modify, keep original
 
