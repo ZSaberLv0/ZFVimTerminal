@@ -53,10 +53,14 @@ endif
 
 
 " ============================================================
-command! -nargs=* -complete=customlist,ZFVimTerminal_cmdComplete ZFTerminal :call s:zfterminal(<q-args>)
-command! -nargs=0 ZFTerminalCtrlC :call s:zfterminalCtrlC()
-command! -nargs=0 ZFTerminalClose :call s:zfterminalClose()
-command! -nargs=0 ZFTerminalHide :call s:zfterminalHide()
+if exists('*getcompletion')
+    command! -nargs=* -complete=customlist,ZFVimTerminal_cmdComplete ZFTerminal :call ZFTerminal(<q-args>)
+else
+    command! -nargs=* -complete=file ZFTerminal :call ZFTerminal(<q-args>)
+endif
+command! -nargs=0 ZFTerminalCtrlC :call ZFTerminalCtrlC()
+command! -nargs=0 ZFTerminalClose :call ZFTerminalClose()
+command! -nargs=0 ZFTerminalHide :call ZFTerminalHide()
 
 
 " ============================================================
@@ -132,8 +136,11 @@ function! s:compatibleMode()
     return g:ZFVimTerminalCompatibleMode || !ZFJobAvailable()
 endfunction
 
-function! s:zfterminal(...)
+function! ZFTerminal(...)
     let cmd = get(a:, 1, '')
+    " tail backslash may cause unexpected behavior
+    " it's easily occur when perform command complete with `noshellslash` under Windows
+    let cmd = substitute(cmd, '\\$', '', 'g')
 
     call s:termWinInit()
 
@@ -187,18 +194,18 @@ function! s:zfterminal(...)
     call s:autoEnterInsert()
 endfunction
 
-function! s:zfterminalCtrlC()
+function! ZFTerminalCtrlC()
     if s:state['jobId'] > 0
         call ZFJobStop(s:state['jobId'])
         call s:termWinFocus()
     endif
 endfunction
 
-function! s:zfterminalHide()
+function! ZFTerminalHide()
     call ZFLogWinHide(s:logId)
 endfunction
 
-function! s:zfterminalClose()
+function! ZFTerminalClose()
     if s:state['jobId'] > 0
         call ZFJobStop(s:state['jobId'])
         let s:state['jobId'] = -1
