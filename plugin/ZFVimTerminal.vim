@@ -53,11 +53,7 @@ endif
 
 
 " ============================================================
-if exists('*getcompletion')
-    command! -nargs=* -complete=customlist,ZFVimTerminal_cmdComplete ZFTerminal :call ZFTerminal(<q-args>)
-else
-    command! -nargs=* -complete=file ZFTerminal :call ZFTerminal(<q-args>)
-endif
+command! -nargs=* -complete=customlist,ZFJobCmdComplete ZFTerminal :call ZFTerminal(<q-args>)
 command! -nargs=0 ZFTerminalCtrlC :call ZFTerminalCtrlC()
 command! -nargs=0 ZFTerminalClose :call ZFTerminalClose()
 command! -nargs=0 ZFTerminalHide :call ZFTerminalHide()
