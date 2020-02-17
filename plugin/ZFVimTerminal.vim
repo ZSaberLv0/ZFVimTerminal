@@ -153,8 +153,8 @@ function! ZFTerminal(...)
     endif
 
     let jobOption = {
-                \   'onOutput' : ZFJobFunc(function('s:onOutput')),
-                \   'onExit' : ZFJobFunc(function('s:onExit')),
+                \   'onOutput' : ZFJobFunc(function('ZFVimTerminal_onOutput')),
+                \   'onExit' : ZFJobFunc(function('ZFVimTerminal_onExit')),
                 \ }
     if s:compatibleMode()
         let s:state['jobId'] = 0
@@ -167,7 +167,7 @@ function! ZFTerminal(...)
             let s:state['cmdRunning'] = 0
             call s:outputCmd(cmd)
         endif
-        let jobOption['jobCmd'] = ZFJobFunc(function('s:compatibleModeJobCmd'), [cmd])
+        let jobOption['jobCmd'] = ZFJobFunc(function('ZFVimTerminal_compatibleModeJobCmd'), [cmd])
         let jobOption['jobEncoding'] = s:termEncodingCompatible
     else
         let jobOption['jobCmd'] = s:shell
@@ -211,7 +211,7 @@ function! ZFTerminalClose()
     let s:state['cmdRunning'] = 0
 endfunction
 
-function! s:compatibleModeJobCmd(cmd, jobStatus)
+function! ZFVimTerminal_compatibleModeJobCmd(cmd, jobStatus)
     let result = system(a:cmd)
     return {
                 \   'output' : result,
@@ -252,7 +252,7 @@ function! s:outputCmd(cmd)
     call ZFLogWinRedraw(s:logId)
 endfunction
 
-function! s:onOutput(jobStatus, text, type)
+function! ZFVimTerminal_onOutput(jobStatus, text, type)
     if a:text == s:autoDetectShellEndFlag
         let s:state['cmdRunning'] = 0
         call s:outputShellPrefix()
@@ -310,7 +310,7 @@ function! s:onOutput_cmdIgnore(text)
     return 0
 endfunction
 
-function! s:onExit(jobStatus, exitCode)
+function! ZFVimTerminal_onExit(jobStatus, exitCode)
     let s:state['cmdRunning'] = 0
     call s:outputShellPrefix()
     if a:jobStatus['jobId'] == 0
@@ -345,7 +345,7 @@ endfunction
 " terminal window
 let s:logId = 'ZFTerminal'
 
-function! s:termWinOnInit(logId)
+function! ZFVimTerminal_termWinOnInit(logId)
     if get(g:ZFVimTerminal_windowConfig, 'makeDefaultKeymap', 1)
         nnoremap <buffer> i :<c-u>ZFTerminal<space>
         nnoremap <buffer> I :<c-u>ZFTerminal<space>
@@ -361,7 +361,7 @@ function! s:termWinOnInit(logId)
         nnoremap <buffer> <c-c> :ZFTerminalCtrlC<cr>
     endif
 endfunction
-function! s:termWinStatusline(logId)
+function! ZFVimTerminal_termWinStatusline(logId)
     let Fn_statusline = get(g:ZFVimTerminal_windowConfig, 'statusline', {})
     if !empty(Fn_statusline)
         if type(Fn_statusline) == type('')
@@ -381,8 +381,8 @@ endfunction
 function! s:termWinInit()
     let config = extend(copy(g:ZFVimTerminal_windowConfig), {
                 \   'makeDefaultKeymap' : 0,
-                \   'statusline' : function('s:termWinStatusline'),
-                \   'initCallback' : function('s:termWinOnInit'),
+                \   'statusline' : function('ZFVimTerminal_termWinStatusline'),
+                \   'initCallback' : function('ZFVimTerminal_termWinOnInit'),
                 \ })
     call ZFLogWinConfig(s:logId, config)
     call ZFLogWinFocus(s:logId)
@@ -400,7 +400,7 @@ function! s:autoEnterInsertTimerStop()
         let s:autoEnterInsertTimerId = -1
     endif
 endfunction
-function! s:autoEnterInsertCallback(...)
+function! ZFVimTerminal_autoEnterInsertCallback(...)
     let s:autoEnterInsertTimerId = -1
     if ZFLogWinIsFocused(s:logId)
         call feedkeys('i', 't')
@@ -411,9 +411,9 @@ function! s:autoEnterInsert()
     if g:ZFVimTerminal_autoEnterInsert
         if has('timers')
             call s:autoEnterInsertTimerStop()
-            let s:autoEnterInsertTimerId = timer_start(1, function('s:autoEnterInsertCallback'))
+            let s:autoEnterInsertTimerId = timer_start(1, function('ZFVimTerminal_autoEnterInsertCallback'))
         else
-            call s:autoEnterInsertCallback()
+            call ZFVimTerminal_autoEnterInsertCallback()
         endif
     endif
 endfunction

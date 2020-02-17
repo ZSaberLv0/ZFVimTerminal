@@ -20,6 +20,13 @@ if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&ta
     * use vim's `:command` complete to input shell commands, should be more friendly to use
 
 
+# Requirement
+
+* (required) `v:version >= 703`, older version may work, but not tested
+* (optional) `has('channel')` for async shell run
+* (optional) `exists('*getcompletion')` for command complete
+
+
 # How to use
 
 1. use [Vundle](https://github.com/VundleVim/Vundle.vim) or any other plugin manager you like to install
