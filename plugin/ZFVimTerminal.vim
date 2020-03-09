@@ -56,6 +56,7 @@ endif
 command! -nargs=* -complete=customlist,ZFJobCmdComplete ZFTerminal :call ZFTerminal(<q-args>)
 command! -nargs=0 ZFTerminalCtrlC :call ZFTerminalCtrlC()
 command! -nargs=0 ZFTerminalClose :call ZFTerminalClose()
+command! -nargs=0 ZFTerminalClear :call ZFTerminalClear()
 command! -nargs=0 ZFTerminalHide :call ZFTerminalHide()
 
 
@@ -209,6 +210,11 @@ function! ZFTerminalClose()
     call ZFLogWinClose(s:logId)
     let s:state['cmdQueue'] = []
     let s:state['cmdRunning'] = 0
+endfunction
+
+function! ZFTerminalClear()
+    call ZFLogWinClear(s:logId)
+    call s:outputCmd('')
 endfunction
 
 function! ZFVimTerminal_compatibleModeJobCmd(cmd, jobStatus)
