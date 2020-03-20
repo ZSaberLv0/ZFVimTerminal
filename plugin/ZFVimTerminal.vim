@@ -155,6 +155,7 @@ function! ZFTerminal(...)
 
     let jobOption = {
                 \   'onOutput' : ZFJobFunc(function('ZFVimTerminal_onOutput')),
+                \   'onEnter' : ZFJobFunc(function('ZFVimTerminal_onEnter')),
                 \   'onExit' : ZFJobFunc(function('ZFVimTerminal_onExit')),
                 \ }
     if s:compatibleMode()
@@ -316,6 +317,10 @@ function! s:onOutput_cmdIgnore(text)
     return 0
 endfunction
 
+function! ZFVimTerminal_onEnter(jobStatus)
+    call ZFLogWinJobStatusSet(s:logId, a:jobStatus)
+endfunction
+
 function! ZFVimTerminal_onExit(jobStatus, exitCode)
     let s:state['cmdRunning'] = 0
     call s:outputShellPrefix()
@@ -377,11 +382,19 @@ function! ZFVimTerminal_termWinStatusline(logId)
         endif
     endif
 
-    if !empty(s:state['cmdLast'])
-        return ZFStatuslineLogValue(':ZFTerminal ' . s:state['cmdLast'])
-    else
-        return ZFStatuslineLogValue(':ZFTerminal')
+    let value = ':ZFTerminal'
+    if s:state['cmdRunning']
+        if !exists('s:progressIndex')
+            let s:progressIndex = -1
+        endif
+        let progress = '-\|/'
+        let s:progressIndex = (s:progressIndex + 1) % len(progress)
+        let value = progress[s:progressIndex] . strpart(value, 1)
     endif
+    if !empty(s:state['cmdLast'])
+        let value .= ' ' . s:state['cmdLast']
+    endif
+    return ZFStatuslineLogValue(value)
 endfunction
 
 function! s:termWinInit()
