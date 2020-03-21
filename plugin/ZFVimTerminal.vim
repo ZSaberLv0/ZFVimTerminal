@@ -371,6 +371,24 @@ function! ZFVimTerminal_termWinOnInit(logId)
         nnoremap <buffer> x :ZFTerminalHide<cr>
         nnoremap <buffer> <c-c> :ZFTerminalCtrlC<cr>
     endif
+
+    if has('timers') && get(g:, 'ZFVimTerminalStatuslineRedrawInterval', 1000) > 0
+        if exists('s:termWinStatuslineRedrawTaskId')
+            call ZFJobIntervalStop(s:termWinStatuslineRedrawTaskId)
+        endif
+        let s:termWinStatuslineRedrawTaskId = ZFJobIntervalStart(
+                    \ get(g:, 'ZFVimTerminalStatuslineRedrawInterval', 1000),
+                    \ function('ZFVimTerminal_termWinStatuslineRedrawCallback'))
+    endif
+endfunction
+function! ZFVimTerminal_termWinOnCleanup(logId)
+    if exists('s:termWinStatuslineRedrawTaskId')
+        call ZFJobIntervalStop(s:termWinStatuslineRedrawTaskId)
+        unlet s:termWinStatuslineRedrawTaskId
+    endif
+endfunction
+function! ZFVimTerminal_termWinStatuslineRedrawCallback(...)
+    call ZFLogWinRedrawStatusline(s:logId)
 endfunction
 function! ZFVimTerminal_termWinStatusline(logId)
     let Fn_statusline = get(g:ZFVimTerminal_windowConfig, 'statusline', {})
@@ -382,17 +400,17 @@ function! ZFVimTerminal_termWinStatusline(logId)
         endif
     endif
 
-    let value = ':ZFTerminal'
-    if s:state['cmdRunning']
-        if !exists('s:progressIndex')
-            let s:progressIndex = -1
-        endif
-        let progress = '-\|/'
-        let s:progressIndex = (s:progressIndex + 1) % len(progress)
-        let value = progress[s:progressIndex] . strpart(value, 1)
-    endif
     if !empty(s:state['cmdLast'])
-        let value .= ' ' . s:state['cmdLast']
+        if s:state['cmdRunning']
+            let token = '-\|/'
+            let s:termWinStatuslineToken = (get(s:, 'termWinStatuslineToken', -1) + 1) % len(token)
+            let value = token[s:termWinStatuslineToken]
+        else
+            let value = ':'
+        endif
+        let value .= 'ZFTerminal ' . s:state['cmdLast']
+    else
+        let value = ':ZFTerminal'
     endif
     return ZFStatuslineLogValue(value)
 endfunction
@@ -402,6 +420,7 @@ function! s:termWinInit()
                 \   'makeDefaultKeymap' : 0,
                 \   'statusline' : function('ZFVimTerminal_termWinStatusline'),
                 \   'initCallback' : function('ZFVimTerminal_termWinOnInit'),
+                \   'cleanupCallback' : function('ZFVimTerminal_termWinOnCleanup'),
                 \ })
     call ZFLogWinConfig(s:logId, config)
     call ZFLogWinFocus(s:logId)
