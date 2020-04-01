@@ -369,6 +369,7 @@ function! ZFVimTerminal_termWinOnInit(logId)
         nnoremap <buffer> P :<c-u>ZFTerminal <c-r>"
         nnoremap <buffer> q :ZFTerminalClose<cr>
         nnoremap <buffer> x :ZFTerminalHide<cr>
+        nnoremap <buffer> cc :ZFTerminalClear<cr>
         nnoremap <buffer> <c-c> :ZFTerminalCtrlC<cr>
     endif
 
