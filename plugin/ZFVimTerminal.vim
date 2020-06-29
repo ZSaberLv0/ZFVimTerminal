@@ -367,13 +367,13 @@ function! ZFVimTerminal_termWinOnInit(logId)
         nnoremap <buffer> O :<c-u>ZFTerminal<space>
         nnoremap <buffer> a :<c-u>ZFTerminal<space>
         nnoremap <buffer> A :<c-u>ZFTerminal<space>
-        nnoremap <buffer> <cr> :<c-u>ZFTerminal<cr>
+        nnoremap <buffer><silent> <cr> :<c-u>ZFTerminal<cr>
         nnoremap <buffer> p :<c-u>ZFTerminal <c-r>"
         nnoremap <buffer> P :<c-u>ZFTerminal <c-r>"
-        nnoremap <buffer> q :ZFTerminalClose<cr>
-        nnoremap <buffer> x :ZFTerminalHide<cr>
-        nnoremap <buffer> cc :ZFTerminalClear<cr>
-        nnoremap <buffer> <c-c> :ZFTerminalCtrlC<cr>
+        nnoremap <buffer><silent> q :ZFTerminalClose<cr>
+        nnoremap <buffer><silent> x :ZFTerminalHide<cr>
+        nnoremap <buffer><silent> cc :ZFTerminalClear<cr>
+        nnoremap <buffer><silent> <c-c> :ZFTerminalCtrlC<cr>
     endif
 
     if has('timers') && get(g:, 'ZFVimTerminalStatuslineRedrawInterval', 1000) > 0
