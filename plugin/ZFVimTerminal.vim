@@ -211,6 +211,7 @@ function! ZFTerminalClose()
     call ZFLogWinClose(s:logId)
     let s:state['cmdQueue'] = []
     let s:state['cmdRunning'] = 0
+    let s:state['cmdLast'] = ''
 endfunction
 
 function! ZFTerminalClear()
@@ -311,7 +312,9 @@ function! s:onOutput_cmdIgnore(text)
         let s:onOutput_cmdIgnoreFlag = 1
         return 1
     endif
-    if match(a:text, '^[a-zA-Z]:\\.*>') >= 0 && stridx(a:text, s:state['cmdLast']) >= 0
+    if match(a:text, '^[a-zA-Z]:\\.*>') >= 0
+                \ && !empty(s:state['cmdLast'])
+                \ && stridx(a:text, s:state['cmdLast']) >= 0
         return 1
     endif
     return 0
