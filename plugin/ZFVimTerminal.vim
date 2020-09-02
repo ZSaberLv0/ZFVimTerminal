@@ -8,7 +8,7 @@ if !exists('g:ZFVimTerminal_windowConfig')
                 \   'newWinCmd' : 'rightbelow new',
                 \   'filetype' : 'ZFTerminal',
                 \   'makeDefaultKeymap' : 1,
-                \   'maxLine' : '60000',
+                \   'maxLine' : '30000',
                 \   'autoShow' : 1,
                 \ }
 endif
@@ -260,39 +260,51 @@ function! s:outputCmd(cmd)
     call ZFLogWinRedraw(s:logId)
 endfunction
 
-function! ZFVimTerminal_onOutput(jobStatus, text, type)
-    if a:text == s:autoDetectShellEndFlag
+function! ZFVimTerminal_onOutput(jobStatus, textList, type)
+    let len = len(a:textList)
+    let i = 0
+    let iShellEnd = -1
+    while i < len
+        let text = a:textList[i]
+
+        if text == s:autoDetectShellEndFlag
+            let iShellEnd = i
+        else
+            if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
+                if g:ZFVimTerminal_CRFix == 'newLine'
+                    let text = substitute(text, '\r\n', '\n', 'g')
+                    if match(text, '\r') >= 0
+                        for t in split(text, '\r')
+                            call s:output(t)
+                        endfor
+                    else
+                        call s:output(text)
+                    endif
+                elseif g:ZFVimTerminal_CRFix == 'clearLine'
+                    let text = substitute(text, '\r\n', '\n', 'g')
+                    if match(text, '\r') >= 0
+                        let textLines = split(text, '\r')
+                        call s:output(textLines[len(textLines) - 1])
+                    else
+                        call s:output(text)
+                    endif
+                else
+                    call s:output(text)
+                endif
+            endif
+        endif
+
+        let i += 1
+    endwhile
+
+    if iShellEnd != -1
         let s:state['cmdRunning'] = 0
         call s:outputShellPrefix()
         call s:runNextCmd()
         redraw
-        return
-    endif
-    let text = substitute(a:text, s:autoDetectShellEndFlag, '', 'g')
-    if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
-        if g:ZFVimTerminal_CRFix == 'newLine'
-            let text = substitute(text, '\r\n', '\n', 'g')
-            if match(text, '\r') >= 0
-                for t in split(text, '\r')
-                    call s:output(t)
-                endfor
-            else
-                call s:output(text)
-            endif
-        elseif g:ZFVimTerminal_CRFix == 'clearLine'
-            let text = substitute(text, '\r\n', '\n', 'g')
-            if match(text, '\r') >= 0
-                let textLines = split(text, '\r')
-                call s:output(textLines[len(textLines) - 1])
-            else
-                call s:output(text)
-            endif
-        else
-            call s:output(text)
+        if iShellEnd != len - 1
+            call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
         endif
-    endif
-    if text != a:text
-        call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
     endif
 endfunction
 
