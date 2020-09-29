@@ -284,7 +284,9 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
                     let text = substitute(text, '\r\n', '\n', 'g')
                     if match(text, '\r') >= 0
                         let textLines = split(text, '\r')
-                        call s:output(textLines[len(textLines) - 1])
+                        if !empty(textLines)
+                            call s:output(textLines[len(textLines) - 1])
+                        endif
                     else
                         call s:output(text)
                     endif
