@@ -2,7 +2,8 @@ terminal inside vim, inspired from [mattn/vim-terminal](https://github.com/mattn
 
 ![](https://raw.githubusercontent.com/ZSaberLv0/ZFVimTerminal/master/preview.gif)
 
-if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&tab=repositories&q=ZFVim) for a list of my vim plugins
+if you like my work, [check here](https://github.com/ZSaberLv0?utf8=%E2%9C%93&tab=repositories&q=ZFVim) for a list of my vim plugins,
+or [buy me a coffee](https://github.com/ZSaberLv0/ZSaberLv0)
 
 
 # Difference
