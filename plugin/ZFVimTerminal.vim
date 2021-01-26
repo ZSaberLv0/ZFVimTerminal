@@ -89,11 +89,7 @@ function! s:updateConfig()
             let s:shell = 'cmd'
         endif
     else
-        if match(system('sh --version'), '[0-9]\+\.[0-9]\+\.[0-9]\+') >= 0
-            let s:shell = 'sh --login'
-        else
-            let s:shell = 'sh'
-        endif
+        let s:shell = 'sh'
     endif
 
     let s:autoDetectShellEnd = g:ZFVimTerminal_autoDetectShellEnd
