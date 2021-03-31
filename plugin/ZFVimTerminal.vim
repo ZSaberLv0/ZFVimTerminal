@@ -300,6 +300,9 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
         call s:outputShellPrefix()
         call s:runNextCmd()
         redraw
+        while iShellEnd + 1 < len && a:textList[iShellEnd + 1] == ''
+            let iShellEnd += 1
+        endwhile
         if iShellEnd != len - 1
             call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
         endif
