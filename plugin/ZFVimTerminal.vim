@@ -123,6 +123,7 @@ let s:state = {
             \   'cmdQueue' : [],
             \   'cmdRunning' : 0,
             \   'cmdLast' : '',
+            \   'cmdDelayTimerId' : -1,
             \ }
 
 function! s:compatibleMode()
@@ -208,6 +209,10 @@ function! ZFTerminalClose()
     let s:state['cmdQueue'] = []
     let s:state['cmdRunning'] = 0
     let s:state['cmdLast'] = ''
+    if s:state['cmdDelayTimerId'] != -1
+        call ZFJobTimerStop(s:state['cmdDelayTimerId'])
+        let s:state['cmdDelayTimerId'] = -1
+    endif
 endfunction
 
 function! ZFTerminalClear()
@@ -259,54 +264,58 @@ endfunction
 function! ZFVimTerminal_onOutput(jobStatus, textList, type)
     let len = len(a:textList)
     let i = 0
-    let iShellEnd = -1
+    let reachEnd = 0
     while i < len
         let text = a:textList[i]
+        if match(text, s:autoDetectShellEndFlag) >= 0
+            let reachEnd = 1
+            let text = substitute(text, s:autoDetectShellEndFlag . '[\r\n]*', '', 'g')
+            if empty(text)
+                let i += 1
+                continue
+            endif
+        endif
 
-        if text == s:autoDetectShellEndFlag
-            let iShellEnd = i
-        else
-            if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
-                if g:ZFVimTerminal_CRFix == 'newLine'
-                    let text = substitute(text, '\r\n', '\n', 'g')
-                    if match(text, '\r') >= 0
-                        for t in split(text, '\r')
-                            call s:output(t)
-                        endfor
-                    else
-                        call s:output(text)
-                    endif
-                elseif g:ZFVimTerminal_CRFix == 'clearLine'
-                    let text = substitute(text, '\r\n', '\n', 'g')
-                    if match(text, '\r') >= 0
-                        let textLines = split(text, '\r')
-                        if !empty(textLines)
-                            call s:output(textLines[len(textLines) - 1])
-                        endif
-                    else
-                        call s:output(text)
+        if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
+            if g:ZFVimTerminal_CRFix == 'newLine'
+                let text = substitute(text, '\r\n', '\n', 'g')
+                if match(text, '\r') >= 0
+                    for t in split(text, '\r')
+                        call s:output(t)
+                    endfor
+                else
+                    call s:output(text)
+                endif
+            elseif g:ZFVimTerminal_CRFix == 'clearLine'
+                let text = substitute(text, '\r\n', '\n', 'g')
+                if match(text, '\r') >= 0
+                    let textLines = split(text, '\r')
+                    if !empty(textLines)
+                        call s:output(textLines[len(textLines) - 1])
                     endif
                 else
                     call s:output(text)
                 endif
+            else
+                call s:output(text)
             endif
         endif
 
         let i += 1
     endwhile
 
-    if iShellEnd != -1
-        let s:state['cmdRunning'] = 0
-        call s:outputShellPrefix()
-        call s:runNextCmd()
-        redraw
-        while iShellEnd + 1 < len && a:textList[iShellEnd + 1] == ''
-            let iShellEnd += 1
-        endwhile
-        if iShellEnd != len - 1
-            call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
+    if reachEnd
+        if s:state['cmdDelayTimerId'] != -1
+            call ZFJobTimerStop(s:state['cmdDelayTimerId'])
         endif
+        let s:state['cmdDelayTimerId'] = ZFJobTimerStart(50, function('s:cmdFinished'))
     endif
+endfunction
+function! s:cmdFinished(...)
+    let s:state['cmdRunning'] = 0
+    call s:outputShellPrefix()
+    call s:runNextCmd()
+    redraw
 endfunction
 
 " tricks to solve cmd.exe's extra output
