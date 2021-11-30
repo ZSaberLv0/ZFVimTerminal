@@ -269,7 +269,7 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
         let text = a:textList[i]
         if match(text, s:autoDetectShellEndFlag) >= 0
             let reachEnd = 1
-            let text = substitute(text, s:autoDetectShellEndFlag . '[\r\n]*', '', 'g')
+            let text = substitute(text, '\(echo \)\=' . s:autoDetectShellEndFlag . '[\r\n]*', '', 'g')
             if empty(text)
                 let i += 1
                 continue
@@ -372,7 +372,16 @@ function! s:runNextCmd()
     call s:outputCmd(cmd)
 
     call ZFJobSend(s:state['jobId'], cmd . "\n")
-    if s:autoDetectShellEnd
+    if s:autoDetectShellEnd && empty(s:state['cmdQueue'])
+        if get(s:, 'autoDetectShellEndDelayTaskId', -1) == -1
+            let s:autoDetectShellEndDelayTaskId = ZFJobTimerStart(10, function('s:autoDetectShellEndDelay'))
+        endif
+    endif
+endfunction
+
+function! s:autoDetectShellEndDelay(...)
+    let s:autoDetectShellEndDelayTaskId = -1
+    if s:autoDetectShellEnd && empty(s:state['cmdQueue'])
         call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
     endif
 endfunction
