@@ -476,7 +476,7 @@ endfunction
 function! ZFVimTerminal_autoEnterInsertCallback(...)
     let s:autoEnterInsertTimerId = -1
     if ZFLogWinIsFocused(s:logId)
-        call feedkeys('i', 't')
+        call feedkeys('i', 'nt')
     endif
     redraw
 endfunction
