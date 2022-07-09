@@ -308,10 +308,10 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
         if s:state['cmdDelayTimerId'] != -1
             call ZFJobTimerStop(s:state['cmdDelayTimerId'])
         endif
-        let s:state['cmdDelayTimerId'] = ZFJobTimerStart(50, function('s:cmdFinished'))
+        let s:state['cmdDelayTimerId'] = ZFJobTimerStart(50, ZFJobFunc(function('ZFTerminalImpl_cmdFinished')))
     endif
 endfunction
-function! s:cmdFinished(...)
+function! ZFTerminalImpl_cmdFinished(...)
     let s:state['cmdRunning'] = 0
     call s:outputShellPrefix()
     call s:runNextCmd()
@@ -374,12 +374,12 @@ function! s:runNextCmd()
     call ZFJobSend(s:state['jobId'], cmd . "\n")
     if s:autoDetectShellEnd && empty(s:state['cmdQueue'])
         if get(s:, 'autoDetectShellEndDelayTaskId', -1) == -1
-            let s:autoDetectShellEndDelayTaskId = ZFJobTimerStart(10, function('s:autoDetectShellEndDelay'))
+            let s:autoDetectShellEndDelayTaskId = ZFJobTimerStart(10, ZFJobFunc(function('ZFTerminalImpl_autoDetectShellEndDelay')))
         endif
     endif
 endfunction
 
-function! s:autoDetectShellEndDelay(...)
+function! ZFTerminalImpl_autoDetectShellEndDelay(...)
     let s:autoDetectShellEndDelayTaskId = -1
     if s:autoDetectShellEnd && empty(s:state['cmdQueue'])
         call ZFJobSend(s:state['jobId'], s:autoDetectShellEndCmd . "\n")
