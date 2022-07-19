@@ -25,7 +25,6 @@ or [buy me a coffee](https://github.com/ZSaberLv0/ZSaberLv0)
 
 * (required) `v:version >= 703`, older version may work, but not tested
 * (optional) `has('channel')` for async shell run
-* (optional) `exists('*getcompletion')` for command complete
 
 
 # How to use
