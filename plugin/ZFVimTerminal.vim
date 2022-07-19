@@ -407,7 +407,7 @@ function! ZFVimTerminal_termWinOnInit(logId)
         nnoremap <buffer><silent> <c-c> :ZFTerminalCtrlC<cr>
     endif
 
-    if has('timers') && get(g:, 'ZFVimTerminalStatuslineRedrawInterval', 1000) > 0
+    if ZFJobAvailable() && get(g:, 'ZFVimTerminalStatuslineRedrawInterval', 1000) > 0
         if exists('s:termWinStatuslineRedrawTaskId')
             call ZFJobIntervalStop(s:termWinStatuslineRedrawTaskId)
         endif
@@ -469,7 +469,7 @@ endfunction
 let s:autoEnterInsertTimerId = -1
 function! s:autoEnterInsertTimerStop()
     if s:autoEnterInsertTimerId != -1
-        call timer_stop(s:autoEnterInsertTimerId)
+        call ZFJobTimerStop(s:autoEnterInsertTimerId)
         let s:autoEnterInsertTimerId = -1
     endif
 endfunction
@@ -482,9 +482,9 @@ function! ZFVimTerminal_autoEnterInsertCallback(...)
 endfunction
 function! s:autoEnterInsert()
     if g:ZFVimTerminal_autoEnterInsert
-        if has('timers')
+        if ZFJobTimerAvailable()
             call s:autoEnterInsertTimerStop()
-            let s:autoEnterInsertTimerId = timer_start(1, function('ZFVimTerminal_autoEnterInsertCallback'))
+            let s:autoEnterInsertTimerId = ZFJobTimerStart(1, function('ZFVimTerminal_autoEnterInsertCallback'))
         else
             call ZFVimTerminal_autoEnterInsertCallback()
         endif
