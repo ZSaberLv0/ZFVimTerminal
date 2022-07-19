@@ -82,7 +82,7 @@ endfunction
 function! s:updateConfig()
     if !empty(g:ZFVimTerminal_shell)
         let s:shell = g:ZFVimTerminal_shell
-    elseif has('windows')
+    elseif (has('win32') || has('win64')) && !has('unix')
         if match(system('sh --version'), '[0-9]\+\.[0-9]\+\.[0-9]\+') >= 0
             let s:shell = 'sh'
         else
