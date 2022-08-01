@@ -175,6 +175,7 @@ function! ZFTerminal(...)
             call add(s:state['cmdQueue'], cmd)
         endif
     endif
+    let jobOption['jobOutputCRFix'] = 0
 
     let jobId = ZFJobStart(jobOption)
     if jobId == -1
@@ -278,7 +279,6 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
 
         if !(match(s:shell, '\<cmd\>') >= 0 && s:onOutput_cmdIgnore(text))
             if g:ZFVimTerminal_CRFix == 'newLine'
-                let text = substitute(text, '\r\n', '\n', 'g')
                 if match(text, '\r') >= 0
                     for t in split(text, '\r')
                         call s:output(t)
@@ -287,11 +287,12 @@ function! ZFVimTerminal_onOutput(jobStatus, textList, type)
                     call s:output(text)
                 endif
             elseif g:ZFVimTerminal_CRFix == 'clearLine'
-                let text = substitute(text, '\r\n', '\n', 'g')
                 if match(text, '\r') >= 0
                     let textLines = split(text, '\r')
                     if !empty(textLines)
                         call s:output(textLines[len(textLines) - 1])
+                    else
+                        call s:output('')
                     endif
                 else
                     call s:output(text)
