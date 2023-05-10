@@ -58,6 +58,7 @@ command! -nargs=0 ZFTerminalCtrlC :call ZFTerminalCtrlC()
 command! -nargs=0 ZFTerminalClose :call ZFTerminalClose()
 command! -nargs=0 ZFTerminalClear :call ZFTerminalClear()
 command! -nargs=0 ZFTerminalHide :call ZFTerminalHide()
+command! -nargs=0 ZFTerminalSilent :call ZFTerminalSilent()
 
 
 " ============================================================
@@ -137,6 +138,7 @@ function! ZFTerminal(...)
     let cmd = substitute(cmd, '\\$', '', 'g')
 
     call s:termWinInit()
+    call ZFTerminalSilent(0)
 
     if s:state['jobId'] == -1
         call s:updateConfig()
@@ -199,6 +201,24 @@ endfunction
 
 function! ZFTerminalHide()
     call ZFLogWinHide(s:logId)
+endfunction
+
+function! ZFTerminalSilent(...)
+    if s:state['jobId'] < 0
+        return
+    endif
+    let s:silentState = get(s:, 'silentState', 0)
+    if get(a:, 1, 1)
+        if !s:silentState
+            let s:silentState = 1
+            call ZFLogWinSilent(s:logId, 1)
+        endif
+    else
+        if s:silentState
+            let s:silentState = 0
+            call ZFLogWinSilent(s:logId, 0)
+        endif
+    endif
 endfunction
 
 function! ZFTerminalClose()
@@ -403,7 +423,7 @@ function! ZFVimTerminal_termWinOnInit(logId)
         nnoremap <buffer> p :<c-u>ZFTerminal <c-r>"
         nnoremap <buffer> P :<c-u>ZFTerminal <c-r>"
         nnoremap <buffer><silent> q :ZFTerminalClose<cr>
-        nnoremap <buffer><silent> x :ZFTerminalHide<cr>
+        nnoremap <buffer><silent> x :ZFTerminalSilent<cr>
         nnoremap <buffer><silent> cc :ZFTerminalClear<cr>
         nnoremap <buffer><silent> <c-c> :ZFTerminalCtrlC<cr>
     endif
